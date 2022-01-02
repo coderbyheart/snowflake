@@ -1,0 +1,28 @@
+{
+  "name": "@coderbyheart/snowflake",
+  "version": "0.0.0-development",
+  "description": "Generative snowflakes",
+  "type": "module",
+  "keywords": [
+    "snowflake",
+    "generative",
+    "art"
+  ],
+  "author": "Markus Tacker <m@coderbyheart.com> | https://coderbyheart.com",
+  "license": "MIT",
+  "devDependencies": {
+    "@preact/preset-vite": "2.1.7",
+    "typescript": "4.5.4",
+    "vite": "2.7.10"
+  },
+  "dependencies": {
+    "nanoid": "^3.1.30",
+    "preact": "10.6.4"
+  },
+  "scripts": {
+    "start": "npm run dev",
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  }
+}
