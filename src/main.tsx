@@ -2,5 +2,11 @@ import { render } from "preact";
 import { Hashflake } from "./hashflake";
 
 import "./index.css";
+import { SVGDownloadContextProvider } from "./useSVGDownload";
 
-render(<Hashflake />, document.getElementById("root")!);
+render(
+  <SVGDownloadContextProvider>
+    <Hashflake />
+  </SVGDownloadContextProvider>,
+  document.getElementById("root")!
+);

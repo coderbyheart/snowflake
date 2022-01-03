@@ -1,42 +1,79 @@
 import { Snowflake, DrawSettings } from "./snowflake";
 import { useState } from "preact/hooks";
+import { useSVGDownload } from "./useSVGDownload";
 
 export const Hashflake = () => {
+  const { download } = useSVGDownload();
   const [seed, setSeed] = useState<string>("");
   const [drawSettings, setDrawSettings] = useState<DrawSettings>({
     strokeWidth: 20,
+    branchWidth: 50,
     maxBranches: 6,
     rotate: true,
+    size: 500,
   });
   return (
     <>
       <Snowflake seed={seed} drawSettings={drawSettings} />
+      <p>
+        <button
+          type="button"
+          onClick={() => {
+            download();
+          }}
+        >
+          Download SVG
+        </button>
+      </p>
       <form>
         <fieldset>
-          <button
-            type="button"
-            onClick={() => {
-              document.location.hash = "";
-            }}
-          >
-            Generate a new ❄️
-          </button>
-        </fieldset>
-        <fieldset>
-          <label for="seed">Type some text to generate a new ❄️:</label>
-          <input
-            id="seed"
-            type="text"
-            value={seed}
-            onInput={(e) => {
-              setSeed((e.target as any).value);
-            }}
-            autoComplete="off"
-          />
+          <p>
+            <button
+              type="button"
+              onClick={() => {
+                document.location.hash = "";
+              }}
+            >
+              Generate a new ❄️
+            </button>
+          </p>
+          <p>
+            <span>or</span>{" "}
+            <label for="seed">type some text to generate a new ❄️:</label>
+            <input
+              id="seed"
+              type="text"
+              value={seed}
+              onInput={(e) => {
+                setSeed((e.target as any).value);
+              }}
+              autoComplete="off"
+            />
+          </p>
         </fieldset>
         <fieldset>
           <p>
-            <label for="strokeWidth">Stroke width</label>
+            <label for="branchWidth">
+              Branch width ({drawSettings.branchWidth})
+            </label>
+            <input
+              type="range"
+              id="branchWidth"
+              min={1}
+              max={250}
+              value={drawSettings.branchWidth}
+              onInput={(e) => {
+                setDrawSettings({
+                  ...drawSettings,
+                  branchWidth: (e.target as any).value,
+                });
+              }}
+            />
+          </p>
+          <p>
+            <label for="strokeWidth">
+              Stroke width ({drawSettings.strokeWidth})
+            </label>
             <input
               type="range"
               id="strokeWidth"
@@ -65,6 +102,22 @@ export const Hashflake = () => {
                 setDrawSettings({
                   ...drawSettings,
                   maxBranches: parseInt((e.target as any).value, 10),
+                });
+              }}
+            />
+          </p>
+          <p>
+            <label for="size">Size ({drawSettings.size})</label>
+            <input
+              type="range"
+              id="size"
+              min={1}
+              max={2000}
+              value={drawSettings.size}
+              onInput={(e) => {
+                setDrawSettings({
+                  ...drawSettings,
+                  size: parseInt((e.target as any).value, 10),
                 });
               }}
             />

@@ -29,6 +29,7 @@ svg {
   width: 400px;
   height: 400px;
   margin-bottom: 6rem;
+  margin-top: 6rem;
 }
 svg.rotate {
   -webkit-animation: spin 60s linear infinite;
@@ -50,4 +51,13 @@ svg.rotate {
     -webkit-transform: rotate(360deg);
     transform: rotate(360deg);
   }
+}
+
+form {
+  display: flex;
+  width: 100%;
+}
+fieldset {
+  width: 50%;
+  border: 0;
 }
