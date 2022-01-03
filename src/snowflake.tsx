@@ -1,5 +1,13 @@
 import { useEffect, useState } from "preact/hooks";
 
+export type DrawSettings = {
+  strokeWidth: number;
+  maxBranches: number;
+  rotate: boolean;
+};
+
+const maxSize = 500;
+
 type Branch = {
   length: number;
   position: number;
@@ -35,27 +43,39 @@ const randomNumberFromSeed = async (min: number, max: number, seed: string) => {
   const hashHex = hashArray
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
-  return Math.floor(min + Math.abs(parseInt(hashHex, 16) % (max - min)));
+  return Math.ceil(min + Math.abs(parseInt(hashHex, 16) % (max - min)));
 };
 
-const getSettingsFromHash = (): Settings => {
+const getSettingsFromHash = (drawSettings: DrawSettings): Settings => {
   const settingsString = document.location.hash?.substring(1) ?? "";
   if (settingsString.length <= 1)
     return {
-      branches: [],
+      branches: [
+        ...Array(Math.ceil(Math.random() * drawSettings.maxBranches)).keys(),
+      ].map(() => ({
+        position: Math.ceil(Math.random() * maxSize),
+        length: Math.ceil(Math.random() * maxSize),
+      })),
     };
   return settingsFromString(settingsString);
 };
 
-export const Snowflake = ({ seed }: { seed: string }) => {
+export const Snowflake = ({
+  seed,
+  drawSettings,
+}: {
+  seed: string;
+  drawSettings: DrawSettings;
+}) => {
   const [configuration, setConfiguration] = useState<Settings>(
-    getSettingsFromHash()
+    getSettingsFromHash(drawSettings)
   );
 
   const onHashChange = () => {
-    setConfiguration(getSettingsFromHash());
+    setConfiguration(getSettingsFromHash(drawSettings));
   };
 
+  // Update configuration from hash
   useEffect(() => {
     window.addEventListener("hashchange", onHashChange);
     return () => {
@@ -63,15 +83,24 @@ export const Snowflake = ({ seed }: { seed: string }) => {
     };
   }, []);
 
+  // Write configuration to hash
+  useEffect(() => {
+    document.location.hash = settingsToString(configuration);
+  }, [configuration]);
+
   const root: Branch = {
-    length: 500,
-    position: 500,
+    length: maxSize,
+    position: maxSize,
   };
 
   useEffect(() => {
     if (seed.length === 0) return;
     Promise.all([
-      randomNumberFromSeed(1, 6, `${seed} branches`).then((branches) =>
+      randomNumberFromSeed(
+        1,
+        drawSettings.maxBranches,
+        `${seed} branches`
+      ).then((branches) =>
         Promise.all(
           [...Array(branches).keys()].map((_, k) =>
             Promise.all([
@@ -85,7 +114,12 @@ export const Snowflake = ({ seed }: { seed: string }) => {
                 root.length,
                 `${seed} branch ${k} Position`
               ),
-            ]).then(([length, position]) => ({ length, position }))
+            ]).then(([length, position]) => {
+              return {
+                length: length * Math.sqrt(1 - position / root.length),
+                position,
+              };
+            })
           )
         )
       ),
@@ -97,17 +131,23 @@ export const Snowflake = ({ seed }: { seed: string }) => {
           position,
         });
       }
-      document.location.hash = settingsToString({
-        branches: b,
-      });
+      setConfiguration({ branches: b });
     });
-  }, [seed]);
+  }, [seed, drawSettings]);
 
   return (
-    <svg class="snowflake" viewBox="0 0 2000 2000" title="Snowflake">
+    <svg
+      class={`snowflake ${drawSettings.rotate && "rotate"}`}
+      viewBox="0 0 2000 2000"
+      title="Snowflake"
+    >
       {[0, 1, 2, 3, 4, 5].map((edge) => (
         <g transform={`translate(1000,1000) rotate(${edge * 60})`}>
-          <BranchPath root={root} branches={configuration.branches} />
+          <BranchPath
+            root={root}
+            branches={configuration.branches}
+            strokeWidth={drawSettings.strokeWidth}
+          />
         </g>
       ))}
     </svg>
@@ -117,44 +157,50 @@ export const Snowflake = ({ seed }: { seed: string }) => {
 const BranchPath = ({
   root,
   branches,
+  strokeWidth,
 }: {
   root: Branch;
   branches: Branch[];
+  strokeWidth: number;
 }) => {
-  const strokeWidth = "10";
+  const hexagonSize = branches.sort(
+    ({ position: p1 }, { position: p2 }) => p1 - p2
+  )[0].position;
+
   return (
     <>
       <path
         fill="transparent"
-        d={`M0 0 L${root.length} 0`}
+        d={`M${hexagonSize} 0 L${root.length + hexagonSize} 0`}
         stroke="black"
         stroke-width={strokeWidth}
         stroke-linecap="round"
-        opacity={0.8}
+      ></path>
+      <path
+        fill="transparent"
+        d={`M0 0 L${hexagonSize} 0`}
+        stroke="black"
+        stroke-width={strokeWidth}
+        stroke-linecap="round"
+        transform={`rotate(60,${hexagonSize},0)`}
       ></path>
       {branches.map((branch) => (
         <>
           <path
             fill="transparent"
-            d={`M0 0 L${branch.length} 0`}
+            d={`M${branch.position} 0 L${branch.position + branch.length} 0`}
             stroke="black"
             stroke-width={strokeWidth}
             stroke-linecap="round"
-            transform={`translate(${
-              root.length - branch.position
-            }) rotate(-45,0,0) `}
-            opacity={0.8}
+            transform={`rotate(-45,${branch.position},0) `}
           ></path>
           <path
             fill="transparent"
-            d={`M0 0 L${branch.length} 0`}
+            d={`M${branch.position} 0 L${branch.position + branch.length} 0`}
             stroke="black"
             stroke-width={strokeWidth}
             stroke-linecap="round"
-            transform={`translate(${
-              root.length - branch.position
-            }) rotate(45,0,0) `}
-            opacity={0.8}
+            transform={`rotate(45,${branch.position},0) `}
           ></path>
         </>
       ))}
