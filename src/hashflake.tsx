@@ -7,7 +7,7 @@ export const Hashflake = () => {
     <>
       <Snowflake seed={seed} />
       <form>
-        <label for="seed">Seed:</label>
+        <label for="seed">Type some text to generate a new ❄️:</label>
         <input
           id="seed"
           type="text"
