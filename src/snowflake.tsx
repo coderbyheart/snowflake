@@ -135,14 +135,20 @@ export const Snowflake = ({
     });
   }, [seed, drawSettings]);
 
+  const viewBoxSize = 2000;
+
   return (
     <svg
       class={`snowflake ${drawSettings.rotate && "rotate"}`}
-      viewBox="0 0 2000 2000"
+      viewBox={`0 0 ${viewBoxSize} ${viewBoxSize}`}
       title="Snowflake"
     >
       {[0, 1, 2, 3, 4, 5].map((edge) => (
-        <g transform={`translate(1000,1000) rotate(${edge * 60})`}>
+        <g
+          transform={`translate(${viewBoxSize / 2},${viewBoxSize / 2}) rotate(${
+            edge * 60
+          })`}
+        >
           <BranchPath
             root={root}
             branches={configuration.branches}
@@ -167,40 +173,65 @@ const BranchPath = ({
     ({ position: p1 }, { position: p2 }) => p1 - p2
   )[0].position;
 
+  const outlinePathProps = {
+    fill: "transparent",
+    "stroke-width": "10px",
+    stroke: "black",
+  };
+
+  const fillPathProps = {
+    fill: "white",
+  };
+
   return (
     <>
       <path
-        fill="transparent"
-        d={`M${hexagonSize} 0 L${root.length + hexagonSize} 0`}
-        stroke="black"
-        stroke-width={strokeWidth}
-        stroke-linecap="round"
+        {...outlinePathProps}
+        d={[
+          `M${hexagonSize} ${strokeWidth}`,
+          `L${root.length + hexagonSize} ${strokeWidth}`,
+          `L${root.length + hexagonSize + strokeWidth / (3 / 2)} 0`,
+          `L${root.length + hexagonSize} -${strokeWidth}`,
+          `L${hexagonSize} -${strokeWidth}`,
+          `z`,
+        ].join(" ")}
       ></path>
       <path
-        fill="transparent"
-        d={`M0 0 L${hexagonSize} 0`}
-        stroke="black"
-        stroke-width={strokeWidth}
-        stroke-linecap="round"
+        {...outlinePathProps}
+        d={[
+          `M0 ${strokeWidth}`,
+          `L${hexagonSize} ${strokeWidth}`,
+          `L${hexagonSize} -${strokeWidth}`,
+          `L0 -${strokeWidth}`,
+          `z`,
+        ].join(" ")}
         transform={`rotate(60,${hexagonSize},0)`}
       ></path>
       {branches.map((branch) => (
         <>
           <path
-            fill="transparent"
-            d={`M${branch.position} 0 L${branch.position + branch.length} 0`}
-            stroke="black"
-            stroke-width={strokeWidth}
-            stroke-linecap="round"
-            transform={`rotate(-45,${branch.position},0) `}
+            {...outlinePathProps}
+            d={[
+              `M${branch.position} ${strokeWidth}`,
+              `L${branch.position + branch.length} ${strokeWidth}`,
+              `L${branch.position + branch.length + strokeWidth / (3 / 2)} 0`,
+              `L${branch.position + branch.length} -${strokeWidth}`,
+              `L${branch.position} -${strokeWidth}`,
+              `z`,
+            ].join(" ")}
+            transform={`rotate(45,${branch.position},0) `}
           ></path>
           <path
-            fill="transparent"
-            d={`M${branch.position} 0 L${branch.position + branch.length} 0`}
-            stroke="black"
-            stroke-width={strokeWidth}
-            stroke-linecap="round"
-            transform={`rotate(45,${branch.position},0) `}
+            {...outlinePathProps}
+            d={[
+              `M${branch.position} ${strokeWidth}`,
+              `L${branch.position + branch.length} ${strokeWidth}`,
+              `L${branch.position + branch.length + strokeWidth / (3 / 2)} 0`,
+              `L${branch.position + branch.length} -${strokeWidth}`,
+              `L${branch.position} -${strokeWidth}`,
+              `z`,
+            ].join(" ")}
+            transform={`rotate(-45,${branch.position},0) `}
           ></path>
         </>
       ))}

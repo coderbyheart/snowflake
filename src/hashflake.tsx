@@ -13,6 +13,16 @@ export const Hashflake = () => {
       <Snowflake seed={seed} drawSettings={drawSettings} />
       <form>
         <fieldset>
+          <button
+            type="button"
+            onClick={() => {
+              document.location.hash = "";
+            }}
+          >
+            Generate a new ❄️
+          </button>
+        </fieldset>
+        <fieldset>
           <label for="seed">Type some text to generate a new ❄️:</label>
           <input
             id="seed"
