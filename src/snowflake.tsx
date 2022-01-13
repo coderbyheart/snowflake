@@ -7,6 +7,9 @@ export type DrawSettings = {
   maxBranches: number;
   rotate: boolean;
   size: number;
+  border: boolean;
+  fillColor: string;
+  borderColor: string;
 };
 
 type Branch = {
@@ -136,7 +139,6 @@ export const Snowflake = ({
       drawSettings={drawSettings}
       viewBoxSize={2000}
       branches={configuration.branches}
-      onSVG={console.log}
     />
   );
 };
@@ -145,16 +147,27 @@ const SnowflakeSVG = ({
   drawSettings,
   viewBoxSize,
   branches,
-  onSVG,
 }: {
   drawSettings: DrawSettings;
   viewBoxSize: number;
   branches: Branch[];
-  onSVG: (svg: any) => void;
 }) => {
   const svgEl = useRef<SVGSVGElement>(null);
   const { setSVG } = useSVGDownload();
   setSVG(svgEl);
+
+  const layers = [];
+  if (drawSettings.border) {
+    layers.push({
+      fill: "transparent",
+      "stroke-width": drawSettings.strokeWidth,
+      stroke: drawSettings.borderColor,
+    });
+  }
+  layers.push({
+    fill: drawSettings.fillColor,
+  });
+
   return (
     <svg
       class={`snowflake ${drawSettings.rotate && "rotate"}`}
@@ -162,16 +175,7 @@ const SnowflakeSVG = ({
       title="Snowflake"
       ref={svgEl}
     >
-      {[
-        {
-          fill: "transparent",
-          "stroke-width": drawSettings.strokeWidth,
-          stroke: "black",
-        },
-        {
-          fill: "white",
-        },
-      ].map((pathProps) =>
+      {layers.map((pathProps) =>
         [0, 1, 2, 3, 4, 5].map((edge) => (
           <g
             transform={`translate(${viewBoxSize / 2},${

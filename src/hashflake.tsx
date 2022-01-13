@@ -11,6 +11,9 @@ export const Hashflake = () => {
     maxBranches: 6,
     rotate: true,
     size: 500,
+    border: true,
+    fillColor: "white",
+    borderColor: "black",
   });
   return (
     <>
@@ -90,7 +93,7 @@ export const Hashflake = () => {
           </p>
           <p>
             <label for="maxBranches">
-              Maximum umber of branches ({drawSettings.maxBranches})
+              Maximum number of branches ({drawSettings.maxBranches})
             </label>
             <input
               type="range"
@@ -132,6 +135,78 @@ export const Hashflake = () => {
                 setDrawSettings({
                   ...drawSettings,
                   rotate: (e.target as any).checked,
+                });
+              }}
+            />
+          </p>
+          <p>
+            <label for="border">Border?</label>
+            <input
+              type="checkbox"
+              id="border"
+              checked={drawSettings.border}
+              onInput={(e) => {
+                setDrawSettings({
+                  ...drawSettings,
+                  border: (e.target as any).checked,
+                });
+              }}
+            />
+          </p>
+          <p>
+            <label for="fillColor">Fill color</label>
+            <input
+              type="color"
+              id="fillColor"
+              value={drawSettings.fillColor}
+              onChange={(e) => {
+                setDrawSettings({
+                  ...drawSettings,
+                  fillColor: (e.target as any).value,
+                });
+              }}
+            />
+          </p>
+          <p>
+            {[
+              "#58ebf7",
+              "#4b4afd",
+              "#24c3f7",
+              "#10f6fd",
+              "#177dcb",
+              "#15649b",
+              "#73726e",
+              "#d1d960",
+              "#fce151",
+              "#fd9c5b",
+              "#fb6c5b",
+              "#fb5cac",
+              "#fc30e1",
+            ].map((color) => (
+              <button
+                type="button"
+                onClick={() => {
+                  setDrawSettings({
+                    ...drawSettings,
+                    fillColor: color,
+                  });
+                }}
+                style={{ backgroundColor: color }}
+              >
+                {color}
+              </button>
+            ))}
+          </p>
+          <p>
+            <label for="borderColor">Border color</label>
+            <input
+              type="color"
+              id="borderColor"
+              value={drawSettings.borderColor}
+              onChange={(e) => {
+                setDrawSettings({
+                  ...drawSettings,
+                  borderColor: (e.target as any).value,
                 });
               }}
             />
